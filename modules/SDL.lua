@@ -1,8 +1,8 @@
 --- The module which is responsible for managing SDL from ATF
 --
--- *Dependencies:* `os`, `sdl_logger`, `config`, `atf.util`
+-- *Dependencies:* `os`, `sdl_logger`, `config`, `atf.util`, `console`
 --
--- *Globals:* `sleep()`, `CopyFile()`, `CopyInterface()`, `xmlReporter`, `console`
+-- *Globals:* `sleep()`, `CopyFile()`, `CopyInterface()`, `xmlReporter`
 -- @module SDL
 -- @copyright [Ford Motor Company](https://smartdevicelink.com/partners/ford/) and [SmartDeviceLink Consortium](https://smartdevicelink.com/consortium/)
 -- @license <https://github.com/smartdevicelink/sdl_core/blob/master/LICENSE>
@@ -11,6 +11,7 @@ require('os')
 local sdl_logger = require('sdl_logger')
 local config = require('config')
 local console = require('console')
+local util = require ("atf.util")
 local SDL = { }
 
 require('atf.util')
@@ -119,7 +120,7 @@ function SDL:StartSDL(pathToSDL, smartDeviceLinkCore, ExitOnCrash)
   if result then
     msg = "SDL started"
     if config.storeFullSDLLogs == true then
-      sdl_logger.init_log(get_script_file_name())
+      sdl_logger.init_log(util.runner.get_script_file_name())
     end
   else
     msg = "SDL had already started not from ATF or unexpectedly crashed"

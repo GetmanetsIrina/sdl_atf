@@ -4,7 +4,7 @@
 --
 -- *Dependencies:* `cardinalities`
 --
--- *Globals:* `list`
+-- *Globals:* `list`, `timestamp()`
 -- @copyright [Ford Motor Company](https://smartdevicelink.com/partners/ford/) and [SmartDeviceLink Consortium](https://smartdevicelink.com/consortium/)
 -- @license <https://github.com/smartdevicelink/sdl_core/blob/master/LICENSE>
 
@@ -23,7 +23,7 @@ function Expectations.Expectation(name, connection)
   local mt = { __index = { } }
 
   --- Perform actions from actions list
-  -- @tparam ??? data ??? Data for actions
+  -- @tparam table data Data for actions
   function mt.__index:Action(data)
     for i = 1, #self.actions do
       self.actions[i](self, data)
@@ -181,27 +181,30 @@ end
 -- @type ExpectationsList
 function Expectations.ExpectationsList()
   local mt = { __index = {} }
-  function mt.__index:Add(e)
-    if e.pinned then
-      table.insert(self.pinned, e)
-      e.index = #self.pinned
+
+  --- Add expectation into list of expectations
+  -- @tparam Expectation exp Expectation to add
+  function mt.__index:Add(exp)
+    if exp.pinned then
+      table.insert(self.pinned, exp)
+      exp.index = #self.pinned
     else
-      table.insert(self.expectations, e)
-      e.index = self.expectations
+      table.insert(self.expectations, exp)
+      exp.index = #self.expectations
     end
   end
 
   --- Remove expectation from list of expectations
-  -- @tparam Expectation e Expectation to remove
-  function mt.__index:Remove(e)
-    if e.pinned then
-      table.remove(self.pinned, e.index)
-      for i = e.index, #self.pinned do
+  -- @tparam Expectation exp Expectation to remove
+  function mt.__index:Remove(exp)
+    if exp.pinned then
+      table.remove(self.pinned, exp.index)
+      for i = exp.index, #self.pinned do
         self.pinned[i].index = i
       end
     else
-      table.remove(self.expectations)
-      for i = e.index, #self.expectations do
+      table.remove(self.expectations, exp.index)
+      for i = exp.index, #self.expectations do
         self.expectations[i].index = i
       end
     end
@@ -263,7 +266,7 @@ function Expectations.ExpectationsList()
 
   --- Set expectation as not pinned (expected during one test step where was defined)
   -- @tparam Expectation e Expectation to be unpinned
-  function mt.__index.Unpin(e)
+  function mt.__index:Unpin(e)
     for i = 1, #self.pinned do
       if self.pinned[i] == e then
         table.remove(self.pinned, i)
